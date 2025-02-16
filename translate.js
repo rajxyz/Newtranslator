@@ -20,9 +20,9 @@ router.post("/", async (req, res) => {
       {
         model: "gpt-3.5-turbo",
         messages: [
-          { role: "system", content: `You are a translator. Translate the following text to ${target}.` },
-          { role: "user", content: text }
-        ]
+  { role: "system", content: "You are a translation assistant." },
+  { role: "user", content: `Translate this to ${target}: "${text}"` }
+],
       },
       {
         headers: {
