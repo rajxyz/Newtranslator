@@ -40,8 +40,10 @@ app.post("/translate", async (req, res) => {
     const { text, target } = req.body;
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
-      messages: [{ role: "system", content: `Translate the following text to ${target}: "${text}"` }],
-    });
+    messages: [
+  { role: "system", content: "You are a language detection assistant." },
+  { role: "user", content: `What is the language of this text: "${text}"? Reply only with the language name.` }
+],
 
     const translatedText = response.data.choices[0].message.content;
     res.json({ translatedText: translatedText.trim() });
