@@ -10,14 +10,14 @@ app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 5000;
 
-// Initialize OpenAI API
+// Securely fetch the API key from .env
 const openai = new OpenAIApi(
   new Configuration({
-    apiKey: process.env.OPENAI_API_KEY, // Fetch API key from .env file
+    apiKey: process.env.OPENAI_API_KEY, // No hardcoded key!
   })
 );
 
-// **1. Detect Language**
+// **Language Detection**
 app.post("/detect", async (req, res) => {
   try {
     const { text } = req.body;
@@ -34,7 +34,7 @@ app.post("/detect", async (req, res) => {
   }
 });
 
-// **2. Translate Text**
+// **Translation**
 app.post("/translate", async (req, res) => {
   try {
     const { text, target } = req.body;
@@ -51,7 +51,7 @@ app.post("/translate", async (req, res) => {
   }
 });
 
-// Start server
+// **Start Server**
 app.listen(PORT, () => {
   console.log(`✅ Server is running on port ${PORT}`);
 });
