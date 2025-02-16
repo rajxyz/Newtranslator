@@ -8,9 +8,8 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 5000;
-
-// Replace with a real translation API
-const TRANSLATION_API_URL = "https://libretranslate.com"; 
+const TRANSLATION_API_URL = "https://libretranslate.com";
+const API_KEY = "your-api-key"; // Add your API key here
 
 // **1. Detect Language**
 app.post("/detect", async (req, res) => {
@@ -18,9 +17,16 @@ app.post("/detect", async (req, res) => {
     const { text } = req.body;
     const response = await axios.post(`${TRANSLATION_API_URL}/detect`, {
       q: text,
+      api_key: API_KEY, // ✅ Include API key
     });
+
+    if (!response.data || response.data.length === 0) {
+      return res.status(400).json({ error: "No language detected" });
+    }
+
     res.json({ language: response.data[0].language });
   } catch (error) {
+    console.error("Error detecting language:", error.response?.data || error.message);
     res.status(500).json({ error: "Language detection failed" });
   }
 });
@@ -34,15 +40,17 @@ app.post("/translate", async (req, res) => {
       source,
       target,
       format: "text",
+      api_key: API_KEY, // ✅ Include API key
     });
 
     res.json({ translatedText: response.data.translatedText });
   } catch (error) {
+    console.error("Error translating text:", error.response?.data || error.message);
     res.status(500).json({ error: "Translation failed" });
   }
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`✅ Server is running on port ${PORT}`);
 });
