@@ -26,8 +26,8 @@ app.post("/detect", async (req, res) => {
       messages: [{ role: "system", content: `Detect the language of the following text: "${text}"` }],
     });
 
-    const detectedLanguage = response.data.choices[0].message.content;
-    res.json({ language: detectedLanguage.trim() });
+    const detectedLanguage = response.data.choices?.[0]?.message?.content?.trim() || "Language detection failed";
+    res.json({ language: detectedLanguage });
   } catch (error) {
     console.error("Error detecting language:", error.response?.data || error.message);
     res.status(500).json({ error: "Language detection failed" });
@@ -40,13 +40,14 @@ app.post("/translate", async (req, res) => {
     const { text, target } = req.body;
     const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
-    messages: [
-  { role: "system", content: "You are a language detection assistant." },
-  { role: "user", content: `What is the language of this text: "${text}"? Reply only with the language name.` }
-],
+      messages: [
+        { role: "system", content: "You are a translation assistant." },
+        { role: "user", content: `Translate this text to ${target}: "${text}"` }
+      ],
+    });
 
-    const translatedText = response.data.choices[0].message.content;
-    res.json({ translatedText: translatedText.trim() });
+    const translatedText = response.data.choices?.[0]?.message?.content?.trim() || "Translation failed";
+    res.json({ translatedText });
   } catch (error) {
     console.error("Error translating text:", error.response?.data || error.message);
     res.status(500).json({ error: "Translation failed" });
