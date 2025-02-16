@@ -1,22 +1,43 @@
-const express = require("express");  
-const axios = require("axios");  
-const router = express.Router();  
+const express = require("express");
+const axios = require("axios");
+const dotenv = require("dotenv");
 
-router.post("/", async (req, res) => {  
-  const { text, target } = req.body;  
+dotenv.config();
+const router = express.Router();
 
-  if (!text || !target) return res.status(400).json({ error: "Text and target language required" });  
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
-  try {  
-    const response = await axios.post("https://api.mymemory.translated.net/get", null, {  
-      params: { q: text, langpair: `auto|${target}` }  
-    });  
+router.post("/", async (req, res) => {
+  const { text, target } = req.body;
 
-    const translatedText = response.data.responseData.translatedText || "Translation failed";  
-    res.json({ translatedText });  
-  } catch (error) {  
-    res.status(500).json({ error: "Error translating text" });  
-  }  
-});  
+  if (!text || !target) {
+    return res.status(400).json({ error: "Text and target language required" });
+  }
+
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: `You are a translator. Translate the following text to ${target}.` },
+          { role: "user", content: text }
+        ]
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        }
+      }
+    );
+
+    const translatedText = response.data.choices[0]?.message?.content || "Translation failed";
+    res.json({ translatedText });
+  } catch (error) {
+    console.error("Error translating text:", error.response?.data || error.message);
+    res.status(500).json({ error: "Error translating text" });
+  }
+});
 
 module.exports = router;
